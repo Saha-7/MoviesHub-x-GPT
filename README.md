@@ -1,4 +1,4 @@
-# Netflix GPT
+# Netflix-GPT
 
 
 
@@ -6,7 +6,6 @@
 
 
 ## Features
-
 - Login/Sign Up
     - Sign In /Sign up Form
     - redirect to Browse Page
@@ -21,11 +20,14 @@
     - Search Bar
     - Movie Suggestions
 
+
+
+
     
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-## Steps
+## Steps include :
 
 - Create React App
 - Configured TailwindCSS 
