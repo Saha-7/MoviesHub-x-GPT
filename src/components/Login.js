@@ -1,14 +1,18 @@
 import React, { useRef, useState } from 'react'
 import Header from './Header'
 import { checkValidData } from '../utils/validate'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth"
+import {auth} from "../utils/firebase"
+import { useDispatch } from 'react-redux'
+import { addUser } from '../utils/userSlice'
+import { BG_IMG, USER_AVATAR } from '../utils/constants'
 
 const Login = () => {
 
   const [isSignInForm, setisSignInForm] = useState(true)
   const [errorMessage, setErrorMessage] = useState(null)
 
-
-
+  const dispatch = useDispatch()
 
   const name = useRef(null)
   const email = useRef(null)
@@ -18,13 +22,54 @@ const Login = () => {
   const handleButtonClick = () => {
     const message = checkValidData(email.current.value, password.current.value)
 
-    
-    console.log(email.current.value)
-    console.log(password.current.value)
-    console.log(message);
+    // console.log(email.current.value)
+    // console.log(password.current.value)
+    // console.log(message)
+
     setErrorMessage(message)
 
-    
+    if(message) return
+
+    if(!isSignInForm){
+       // Sign Up Logic
+        createUserWithEmailAndPassword(auth, email.current.value, password.current.value).then((userCredential) => {
+          const user = userCredential.user;
+         // console.log(user)
+          //Update user profile
+          updateProfile(user, {
+            displayName: name.current.value, photoURL: {USER_AVATAR}
+          }).then(() => {
+          // Profile updated!
+          const {uid, email, displayName, photoURL } = auth.currentUser;
+        // ...
+        dispatch(
+          addUser({
+            uid: uid,
+            email: email,
+            displayName: displayName,
+            photoURL: USER_AVATAR
+          })
+        )
+          }).catch((error) => {
+          // An error occurred
+          setErrorMessage(error.message)
+          })
+        }).catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + "-" + errorMessage);
+        });
+    }else{
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value).then((userCredential) => {
+    // Signed in 
+        const user = userCredential.user;
+       // console.log(user)
+      }).catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage(errorCode + "-" + errorMessage)
+      })
+    }   
   }
 
   const toggleSignInForm = () => {
@@ -37,7 +82,7 @@ const Login = () => {
 
     <div className='absolute'>
       <img 
-      src="https://assets.nflxext.com/ffe/siteui/vlv3/fc164b4b-f085-44ee-bb7f-ec7df8539eff/d23a1608-7d90-4da1-93d6-bae2fe60a69b/IN-en-20230814-popsignuptwoweeks-perspective_alpha_website_large.jpg" alt='bg_img'
+      src={BG_IMG} alt='bg_img'
       />
     </div> 
 
